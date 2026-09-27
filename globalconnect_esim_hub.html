@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalConnect eSIM - Stay Connected Anywhere</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library for generating real dynamic QR codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            dark: '#0B1120',
+                            card: '#151F32',
+                            accent: '#00F0FF',
+                            purple: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styling & glassmorphism utilities */
+        .glass-panel {
+            background: rgba(21, 31, 50, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-panel-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .glow-effect {
+            box-shadow: 0 0 30px -5px rgba(20, 184, 166, 0.3);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px -3px rgba(0, 240, 255, 0.35);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B1120;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2d47;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #14b8a6;
+        }
+    </style>
+</head>
+<body class="bg-[#0B1120] text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-brand-accent flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid font-bold fa-wifi"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
+                        Global<span class="text-brand-400">eSIM</span>
+                    </span>
+                    <span class="block text-[10px] text-slate-400 font-semibold uppercase tracking-widest -mt-1">Travel Connected</span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+                <a href="#destinations" class="hover:text-brand-400 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-globe text-xs text-brand-400"></i> Destinations
+                </a>
+                <a href="#regional" class="hover:text-brand-400 transition-colors">Regional Plans</a>
+                <a href="#how-it-works" class="hover:text-brand-400 transition-colors">How It Works</a>
+                <button onclick="openCompatibilityModal()" class="hover:text-brand-400 transition-colors flex items-center gap-2 text-slate-300">
+                    <i class="fa-solid fa-mobile-screen-button text-xs text-brand-accent"></i> Device Check
+                </button>
+            </nav>
+
+            <!-- Actions & Cart Toggle -->
+            <div class="flex items-center gap-3">
+                <!-- Currency Selector -->
+                <div class="relative hidden sm:block">
+                    <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-900/80 border border-slate-700/80 text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-brand-500 text-slate-200 cursor-pointer">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                    </select>
+                </div>
+
+                <!-- Check Compatibility Quick Button -->
+                <button onclick="openCompatibilityModal()" class="hidden lg:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-slate-200 transition">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Is my phone supported?
+                </button>
+
+                <!-- Shopping Cart Button -->
+                <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-xl bg-slate-800/90 border border-slate-700/80 hover:border-brand-500 text-slate-200 hover:text-white transition group">
+                    <i class="fa-solid fa-bag-shopping text-lg text-brand-400 group-hover:scale-110 transition-transform"></i>
+                    <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-brand-500 text-slate-950 font-extrabold text-[11px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#0B1120] scale-0 transition-transform duration-300">0</span>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800 bg-slate-900/95 px-4 py-4 space-y-3">
+            <a href="#destinations" onclick="toggleMobileMenu()" class="block py-2 text-slate-200 font-medium hover:text-brand-400">Destinations</a>
+            <a href="#regional" onclick="toggleMobileMenu()" class="block py-2 text-slate-200 font-medium hover:text-brand-400">Regional Plans</a>
+            <a href="#how-it-works" onclick="toggleMobileMenu()" class="block py-2 text-slate-200 font-medium hover:text-brand-400">How It Works</a>
+            <button onclick="toggleMobileMenu(); openCompatibilityModal()" class="w-full text-left py-2 text-brand-400 font-medium flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button"></i> Check Device Compatibility
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+            <!-- Background Glows & Grid Accent -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#1f293d15_1px,transparent_1px),linear-gradient(to_bottom,#1f293d15_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-brand-500/15 blur-[120px] rounded-full pointer-events-none"></div>
+            <div class="absolute top-10 right-10 w-[300px] h-[300px] bg-brand-accent/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <!-- Trust Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/70 text-xs font-semibold text-brand-400 mb-6 shadow-xl backdrop-blur-md">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 -ml-4"></span>
+                    <span>Instant eSIM Activation in 190+ Countries</span>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.15]">
+                    Stay Connected <span class="bg-gradient-to-r from-brand-400 via-emerald-300 to-brand-accent bg-clip-text text-transparent">Anywhere</span> in the World
+                </h1>
+                
+                <p class="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                    Say goodbye to expensive roaming charges & physical SIM swapping. High-speed 5G & LTE prepaid data plans tailored for your travels.
+                </p>
+
+                <!-- Main Hero Search Bar -->
+                <div class="mt-10 max-w-2xl mx-auto relative z-30">
+                    <div class="relative flex items-center glass-panel rounded-2xl p-2 shadow-2xl border border-slate-700/80 focus-within:border-brand-500 transition-all glow-effect">
+                        <div class="pl-4 pr-2 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xl text-brand-400"></i>
+                        </div>
+                        <input type="text" id="hero-search-input" onkeyup="handleHeroSearch(event)" placeholder="Where are you traveling next? (e.g. Japan, France, USA...)" class="w-full bg-transparent py-3.5 px-2 text-slate-100 placeholder-slate-400 focus:outline-none text-base font-medium">
+                        <button onclick="executeHeroSearch()" class="px-6 py-3.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-slate-950 font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 shrink-0">
+                            <span>Search</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Instant Autocomplete Dropdown Result Box -->
+                    <div id="search-autocomplete-box" class="hidden absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden z-50 text-left max-h-80 overflow-y-auto">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Popular Country Quick Pills -->
+                <div class="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-400">
+                    <span class="text-xs uppercase font-bold tracking-wider text-slate-500 mr-1">Popular Destinations:</span>
+                    <button onclick="quickFilterDestination('Japan')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇯🇵</span> Japan
+                    </button>
+                    <button onclick="quickFilterDestination('United States')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇺🇸</span> USA
+                    </button>
+                    <button onclick="quickFilterDestination('France')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇫🇷</span> France
+                    </button>
+                    <button onclick="quickFilterDestination('Turkey')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇹🇷</span> Turkey
+                    </button>
+                    <button onclick="quickFilterDestination('Thailand')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇹🇭</span> Thailand
+                    </button>
+                    <button onclick="quickFilterDestination('United Arab Emirates')" class="px-3 py-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700/90 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition hover:scale-105">
+                        <span class="text-base">🇦🇪</span> UAE
+                    </button>
+                </div>
+
+                <!-- Key Metrics Strip -->
+                <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/80 text-left">
+                    <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                        <div class="text-2xl font-black text-white">190+</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">Countries Covered</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                        <div class="text-2xl font-black text-brand-400">5G / 4G LTE</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">High-Speed Local Networks</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                        <div class="text-2xl font-black text-white">&lt; 2 Mins</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">Instant QR Delivery</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                        <div class="text-2xl font-black text-emerald-400">4.9 ★★★★★</div>
+                        <div class="text-xs text-slate-400 font-medium mt-1">Over 250k+ Traveler Reviews</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="destinations" class="py-16 bg-slate-950/60 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header & Filter Tabs -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                    <div>
+                        <span class="text-brand-400 font-bold text-xs uppercase tracking-wider">Browse Destinations</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Select Your Destination</h2>
+                        <p class="text-slate-400 text-sm mt-2">Get local data rates without roaming fees. Choose a country to view available eSIM plans.</p>
+                    </div>
+
+                    <!-- Region Tabs -->
+                    <div class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900 border border-slate-800">
+                        <button onclick="setRegionFilter('all')" id="tab-all" class="region-tab px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-500 text-slate-950">All Countries</button>
+                        <button onclick="setRegionFilter('asia')" id="tab-asia" class="region-tab px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Asia</button>
+                        <button onclick="setRegionFilter('europe')" id="tab-europe" class="region-tab px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Europe</button>
+                        <button onclick="setRegionFilter('americas')" id="tab-americas" class="region-tab px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Americas</button>
+                        <button onclick="setRegionFilter('middle-east')" id="tab-middle-east" class="region-tab px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">Middle East & Africa</button>
+                    </div>
+                </div>
+
+                <!-- Country Grid Container -->
+                <div id="countries-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Dynamic rendering by JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="regional" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-brand-accent font-bold text-xs uppercase tracking-wider">Multi-Country Travel</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Regional & Global eSIM Packages</h2>
+                    <p class="text-slate-400 text-sm mt-3">Visiting multiple countries on one trip? Keep continuous connection with a single multi-destination eSIM profile.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Regional Card: Europe -->
+                    <div class="glass-panel rounded-3xl p-6 border border-slate-700/60 hover:border-brand-500 transition-all duration-300 relative group flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-2xl">🇪🇺</div>
+                                <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">39 Countries Covered</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-white">Eurolink Pass</h3>
+                            <p class="text-slate-400 text-xs mt-1">Seamless coverage across UK, France, Germany, Italy, Spain, Switzerland & more.</p>
+                            
+                            <div class="mt-6 space-y-3">
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Top Networks: Vodafone, Orange, O2</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>5G High Speed Data included</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Supports Hotspot / Tethering</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800/80 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-slate-400 block">From</span>
+                                <span class="text-2xl font-black text-white">$5.00</span>
+                            </div>
+                            <button onclick="openCountryDetail('eu')" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-extrabold text-xs transition">
+                                View Plans
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Regional Card: Asia -->
+                    <div class="glass-panel rounded-3xl p-6 border border-brand-500/50 hover:border-brand-400 transition-all duration-300 relative group flex flex-col justify-between glow-effect">
+                        <div class="absolute -top-3 right-6 bg-gradient-to-r from-brand-400 to-brand-accent text-slate-950 text-[10px] uppercase font-extrabold px-3 py-1 rounded-full shadow-lg">
+                            Most Popular
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl">🌏</div>
+                                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">18 Countries Covered</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-white">Asialink Pass</h3>
+                            <p class="text-slate-400 text-xs mt-1">Japan, South Korea, Thailand, Singapore, Vietnam, Malaysia, Indonesia & more.</p>
+                            
+                            <div class="mt-6 space-y-3">
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Top Networks: NTT Docomo, Singtel, AIS</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Ultra-fast LTE / 5G connectivity</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Auto-connect on arrival</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800/80 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-slate-400 block">From</span>
+                                <span class="text-2xl font-black text-white">$6.00</span>
+                            </div>
+                            <button onclick="openCountryDetail('asia-reg')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-brand-accent hover:opacity-90 text-slate-950 font-extrabold text-xs transition">
+                                View Plans
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Regional Card: Global -->
+                    <div class="glass-panel rounded-3xl p-6 border border-slate-700/60 hover:border-brand-500 transition-all duration-300 relative group flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-2xl">🌐</div>
+                                <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">130+ Countries Covered</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-white">Global Explorer</h3>
+                            <p class="text-slate-400 text-xs mt-1">One eSIM for frequent flyers across Americas, Europe, Asia & Oceania.</p>
+                            
+                            <div class="mt-6 space-y-3">
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Valid for up to 365 Days</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Top tier roaming carrier partners</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-300">
+                                    <i class="fa-solid fa-check text-brand-400"></i>
+                                    <span>Top-up anytime via Web app</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800/80 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-slate-400 block">From</span>
+                                <span class="text-2xl font-black text-white">$9.00</span>
+                            </div>
+                            <button onclick="openCountryDetail('global')" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-extrabold text-xs transition">
+                                View Plans
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="py-20 bg-slate-950/80 border-y border-slate-800/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-brand-400 font-bold text-xs uppercase tracking-wider">Simple 3-Step Setup</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">How eSIM Works</h2>
+                    <p class="text-slate-400 text-sm mt-2">No physical store visits, no plastic waste. Get connected in minutes before or during your flight.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                    <!-- Step 1 -->
+                    <div class="glass-panel rounded-3xl p-8 border border-slate-800 relative hover:border-brand-500/50 transition">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400 text-2xl font-black mb-6">
+                            1
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">1. Choose Your Destination</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Select the country or region you are visiting and choose a data plan that fits your length of stay and data needs.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-panel rounded-3xl p-8 border border-slate-800 relative hover:border-brand-500/50 transition">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-accent/10 border border-brand-accent/30 flex items-center justify-center text-brand-accent text-2xl font-black mb-6">
+                            2
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">2. Scan the QR Code</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Upon checkout, receive your instant eSIM QR code on screen and via email. Open your phone camera or settings to scan.
+                        </p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-panel rounded-3xl p-8 border border-slate-800 relative hover:border-brand-500/50 transition">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl font-black mb-6">
+                            3
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">3. Activate & Enjoy</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Turn on your eSIM line when you arrive at your destination to immediately enjoy high-speed local data access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
+                    <p class="text-slate-400 text-sm mt-2">Everything you need to know about traveling with GlobalConnect eSIM.</p>
+                </div>
+
+                <div class="space-y-4" id="faq-accordion">
+                    <!-- FAQ 1 -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <button onclick="toggleFaq(1)" class="w-full text-left p-5 flex items-center justify-between font-bold text-slate-200 hover:text-white transition">
+                            <span>What is an eSIM and how does it work?</span>
+                            <i id="faq-icon-1" class="fa-solid fa-chevron-down text-brand-400 transition-transform"></i>
+                        </button>
+                        <div id="faq-content-1" class="hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3">
+                            An eSIM (embedded SIM) is a digital SIM card that is built into your smartphone hardware. Instead of inserting a physical plastic card, you download a digital cellular profile by scanning a QR code provided after purchase.
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <button onclick="toggleFaq(2)" class="w-full text-left p-5 flex items-center justify-between font-bold text-slate-200 hover:text-white transition">
+                            <span>Can I keep my physical SIM card and primary phone number active?</span>
+                            <i id="faq-icon-2" class="fa-solid fa-chevron-down text-brand-400 transition-transform"></i>
+                        </button>
+                        <div id="faq-content-2" class="hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3">
+                            Yes! Dual SIM functionality allows your physical SIM (for primary calls/WhatsApp verification) and GlobalConnect eSIM (for cheap roaming data) to run simultaneously.
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <button onclick="toggleFaq(3)" class="w-full text-left p-5 flex items-center justify-between font-bold text-slate-200 hover:text-white transition">
+                            <span>When does my plan validity start?</span>
+                            <i id="faq-icon-3" class="fa-solid fa-chevron-down text-brand-400 transition-transform"></i>
+                        </button>
+                        <div id="faq-content-3" class="hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3">
+                            For most destinations, your validity period (e.g. 7 days, 15 days) begins only when your eSIM connects to a supported local mobile network at your destination.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-12 text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div>
+                <a href="#" class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-brand-accent flex items-center justify-center text-slate-950 font-black">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <span class="text-base font-extrabold text-white">GlobalConnect eSIM</span>
+                </a>
+                <p class="text-slate-500 leading-relaxed">Connecting travelers globally with fast, reliable, hassle-free eSIM data plans in over 190 destinations worldwide.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-200 mb-3 text-sm">Top Destinations</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" onclick="quickFilterDestination('Japan')" class="hover:text-brand-400 transition">Japan eSIM</a></li>
+                    <li><a href="#" onclick="quickFilterDestination('United States')" class="hover:text-brand-400 transition">USA eSIM</a></li>
+                    <li><a href="#" onclick="quickFilterDestination('Turkey')" class="hover:text-brand-400 transition">Turkey eSIM</a></li>
+                    <li><a href="#" onclick="quickFilterDestination('France')" class="hover:text-brand-400 transition">France eSIM</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-200 mb-3 text-sm">Help & Resources</h4>
+                <ul class="space-y-2">
+                    <li><a href="javascript:void(0)" onclick="openCompatibilityModal()" class="hover:text-brand-400 transition">Compatible Devices List</a></li>
+                    <li><a href="#how-it-works" class="hover:text-brand-400 transition">Installation Guide</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">24/7 Live Support</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-200 mb-3 text-sm">Payment Methods</h4>
+                <div class="flex flex-wrap gap-2 text-xl text-slate-400">
+                    <i class="fa-brands fa-cc-visa hover:text-white"></i>
+                    <i class="fa-brands fa-cc-mastercard hover:text-white"></i>
+                    <i class="fa-brands fa-cc-apple-pay hover:text-white"></i>
+                    <i class="fa-brands fa-google-pay hover:text-white"></i>
+                    <i class="fa-brands fa-cc-paypal hover:text-white"></i>
+                </div>
+                <div class="mt-4 p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
+                    <i class="fa-solid fa-shield-halved text-brand-400 mr-1"></i> 256-Bit SSL Encrypted Purchase
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-900 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500">
+            <p>© 2026 GlobalConnect Telecom Ltd. All rights reserved.</p>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-slate-300">Privacy Policy</a>
+                <a href="#" class="hover:text-slate-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- COUNTRY DETAIL & PLAN SELECTOR MODAL -->
+    <div id="country-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="glass-panel w-full max-w-4xl rounded-3xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="p-6 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-4">
+                    <span id="modal-flag" class="text-4xl">🇯🇵</span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="modal-country-name" class="text-2xl font-extrabold text-white">Japan</h3>
+                            <span id="modal-badge-5g" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold uppercase">5G Ready</span>
+                        </div>
+                        <p id="modal-network-info" class="text-xs text-slate-400 mt-0.5">Network Partners: NTT Docomo, SoftBank LTE/5G</p>
+                    </div>
+                </div>
+                <button onclick="closeCountryModal()" class="w-10 h-10 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- Features Banner -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/50 p-4 rounded-2xl border border-slate-800/80 text-xs">
+                    <div class="flex items-center gap-2.5 text-slate-300">
+                        <i class="fa-solid fa-bolt text-brand-400 text-base"></i>
+                        <div><div class="font-bold text-white">Instant</div><div class="text-[11px] text-slate-400">QR Code Email</div></div>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-slate-300">
+                        <i class="fa-solid fa-wifi text-brand-accent text-base"></i>
+                        <div><div class="font-bold text-white">Data Only</div><div class="text-[11px] text-slate-400">VoIP Allowed</div></div>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-slate-300">
+                        <i class="fa-solid fa-tower-cell text-emerald-400 text-base"></i>
+                        <div><div class="font-bold text-white">Hotspot</div><div class="text-[11px] text-slate-400">Supported</div></div>
+                    </div>
+                    <div class="flex items-center gap-2.5 text-slate-300">
+                        <i class="fa-solid fa-shield-halved text-purple-400 text-base"></i>
+                        <div><div class="font-bold text-white">No KYC</div><div class="text-[11px] text-slate-400">Passport Free</div></div>
+                    </div>
+                </div>
+
+                <!-- Plan Selection Cards Grid -->
+                <div>
+                    <h4 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider mb-4">Select Your Data Plan:</h4>
+                    <div id="modal-plans-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEVICE COMPATIBILITY CHECKER MODAL -->
+    <div id="compatibility-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-xl rounded-3xl border border-slate-700/80 shadow-2xl p-6 relative">
+            <button onclick="closeCompatibilityModal()" class="absolute top-5 right-5 w-9 h-9 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-700 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold text-white">Device Compatibility Checker</h3>
+                    <p class="text-xs text-slate-400">Verify if your phone supports eSIM technology</p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-xs font-bold text-slate-300 uppercase mb-2">Search your Smartphone / Tablet model:</label>
+                <div class="relative">
+                    <input type="text" id="device-search-input" onkeyup="checkDeviceSupport()" placeholder="e.g., iPhone 14, Galaxy S23, Pixel 7..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute right-4 top-3.5 text-slate-500"></i>
+                </div>
+            </div>
+
+            <!-- Quick Brands Tabs -->
+            <div class="mt-4 flex gap-2">
+                <button onclick="quickFilterDevice('iPhone')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-semibold hover:bg-slate-700 text-slate-300">Apple iPhone</button>
+                <button onclick="quickFilterDevice('Samsung')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-semibold hover:bg-slate-700 text-slate-300">Samsung</button>
+                <button onclick="quickFilterDevice('Pixel')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-semibold hover:bg-slate-700 text-slate-300">Google Pixel</button>
+            </div>
+
+            <!-- Result Box -->
+            <div id="compatibility-result-box" class="mt-6 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-sm min-h-[120px] flex flex-col justify-center items-center text-center">
+                <i class="fa-solid fa-circle-question text-3xl text-slate-600 mb-2"></i>
+                <p class="text-slate-400">Type your smartphone brand or model above to verify compatibility instantly.</p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+                <span>Note: Your device must also be carrier-unlocked.</span>
+                <a href="#" onclick="alert('How to check unlock status:\nOn iPhone: Settings > General > About > Carrier Lock (No SIM restrictions).\nOn Android: Contact your mobile carrier.')" class="text-brand-400 font-semibold hover:underline">How to check unlock?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOPPING CART DRAWER -->
+    <div id="cart-drawer-overlay" onclick="toggleCartDrawer()" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden transition-opacity"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out">
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-bag-shopping text-brand-400 text-lg"></i>
+                <h3 class="font-extrabold text-white text-lg">Your Travel Cart</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items-container" class="flex-grow p-5 overflow-y-auto space-y-4">
+            <!-- Populated dynamically -->
+        </div>
+
+        <!-- Cart Footer & Checkout Action -->
+        <div class="p-5 border-t border-slate-800 bg-slate-950/80 space-y-4">
+            <div class="space-y-2 text-xs">
+                <div class="flex justify-between text-slate-400">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal" class="font-bold text-slate-200">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Instant Digital QR Delivery</span>
+                    <span class="text-emerald-400 font-bold">FREE</span>
+                </div>
+                <div class="flex justify-between text-sm font-extrabold text-white pt-2 border-t border-slate-800">
+                    <span>Total Amount</span>
+                    <span id="cart-total" class="text-brand-400">$0.00</span>
+                </div>
+            </div>
+
+            <button onclick="initiateCheckout()" id="btn-checkout" disabled class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 disabled:hover:bg-brand-500 text-slate-950 font-black rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <span>Proceed to Checkout</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SIMULATED CHECKOUT & INSTANT QR CODE MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-panel w-full max-w-lg rounded-3xl border border-slate-700 shadow-2xl p-6 sm:p-8 relative">
+            <button onclick="closeCheckoutModal()" class="absolute top-5 right-5 w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Step A: Email & Payment Form -->
+            <div id="checkout-step-form">
+                <h3 class="text-2xl font-black text-white mb-1">Instant Checkout</h3>
+                <p class="text-xs text-slate-400 mb-6">Enter details to generate your digital eSIM activation profile instantly.</p>
+
+                <form onsubmit="processSimulatedPayment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Email Address (QR Code delivery):</label>
+                        <input type="email" id="checkout-email" required placeholder="traveler@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Payment Method:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="border border-brand-500 bg-brand-500/10 rounded-xl p-3 flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="payment-type" checked class="accent-brand-500">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-credit-card"></i> Card / Apple Pay</span>
+                            </label>
+                            <label class="border border-slate-800 bg-slate-900 rounded-xl p-3 flex items-center gap-2 cursor-pointer opacity-60">
+                                <input type="radio" name="payment-type" class="accent-brand-500">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5"><i class="fa-brands fa-paypal"></i> PayPal</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-300">Simulated Card Info:</label>
+                        <input type="text" value="4242 •••• •••• 4242" disabled class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 text-slate-400 text-xs">
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Total Due:</span>
+                            <span id="checkout-modal-total" class="text-xl font-black text-brand-400">$0.00</span>
+                        </div>
+                        <button type="submit" id="btn-pay-now" class="px-6 py-3 bg-gradient-to-r from-brand-500 to-brand-accent hover:opacity-90 text-slate-950 font-extrabold rounded-xl text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                            <span>Pay & Activate Now</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step B: Simulated Processing Loader -->
+            <div id="checkout-step-loading" class="hidden py-12 text-center space-y-4">
+                <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <h4 class="text-lg font-bold text-white">Provisioning Your eSIM Profile...</h4>
+                <p class="text-xs text-slate-400">Connecting with local telecom carrier server...</p>
+            </div>
+
+            <!-- Step C: Success & QR Code Display -->
+            <div id="checkout-step-success" class="hidden text-center space-y-5">
+                <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-white">eSIM Order Complete!</h3>
+                    <p class="text-xs text-slate-400 mt-1">Order Ref: <span id="order-ref" class="text-brand-400 font-mono font-bold">#GC-98214</span></p>
+                </div>
+
+                <!-- Dynamic QR Code Box -->
+                <div class="bg-white p-4 rounded-2xl inline-block shadow-xl border-4 border-brand-500/30">
+                    <div id="qrcode-container" class="flex justify-center items-center"></div>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-left text-xs space-y-2">
+                    <div class="font-bold text-brand-400 uppercase text-[10px] tracking-wider">Activation Instructions:</div>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-300 text-[11px]">
+                        <span>Open <b>Settings</b> &gt; <b>Cellular / Mobile Data</b> on your phone.</span><br>
+                        <span>Select <b>Add eSIM / Add Data Plan</b>.</span><br>
+                        <span>Scan the QR code above and label it (e.g. <i>"Travel Data"</i>).</span>
+                    </ol>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="closeCheckoutModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition">
+                        Done / Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ----------------------------------------------------
+           DATA STRUCTURES: Countries, Regions, Data Plans
+        ---------------------------------------------------- */
+        const destinationsData = [
+            {
+                id: 'japan',
+                name: 'Japan',
+                flag: '🇯🇵',
+                region: 'asia',
+                popular: true,
+                speed: '5G / LTE',
+                networks: 'NTT Docomo, SoftBank',
+                plans: [
+                    { id: 'jp-1', data: '1 GB', duration: '7 Days', price: 4.50 },
+                    { id: 'jp-2', data: '3 GB', duration: '15 Days', price: 8.50, badge: 'Top Value' },
+                    { id: 'jp-3', data: '5 GB', duration: '15 Days', price: 11.50, badge: 'Best Seller' },
+                    { id: 'jp-4', data: '10 GB', duration: '30 Days', price: 18.00 },
+                    { id: 'jp-5', data: 'Unlimited', duration: '10 Days', price: 26.00 }
+                ]
+            },
+            {
+                id: 'usa',
+                name: 'United States',
+                flag: '🇺🇸',
+                region: 'americas',
+                popular: true,
+                speed: '5G Ultra-Wideband',
+                networks: 'AT&T, T-Mobile',
+                plans: [
+                    { id: 'us-1', data: '1 GB', duration: '7 Days', price: 4.50 },
+                    { id: 'us-2', data: '3 GB', duration: '30 Days', price: 11.00 },
+                    { id: 'us-3', data: '5 GB', duration: '30 Days', price: 16.00, badge: 'Best Seller' },
+                    { id: 'us-4', data: '10 GB', duration: '30 Days', price: 26.00 },
+                    { id: 'us-5', data: '20 GB', duration: '30 Days', price: 42.00 }
+                ]
+            },
+            {
+                id: 'france',
+                name: 'France',
+                flag: '🇫🇷',
+                region: 'europe',
+                popular: true,
+                speed: '5G / LTE',
+                networks: 'Orange, Bouygues',
+                plans: [
+                    { id: 'fr-1', data: '1 GB', duration: '7 Days', price: 4.00 },
+                    { id: 'fr-2', data: '3 GB', duration: '15 Days', price: 8.00 },
+                    { id: 'fr-3', data: '5 GB', duration: '30 Days', price: 12.00, badge: 'Best Seller' },
+                    { id: 'fr-4', data: '10 GB', duration: '30 Days', price: 19.50 }
+                ]
+            },
+            {
+                id: 'turkey',
+                name: 'Turkey',
+                flag: '🇹🇷',
+                region: 'europe',
+                popular: true,
+                speed: '4G LTE',
+                networks: 'Turkcell, Vodafone TR',
+                plans: [
+                    { id: 'tr-1', data: '1 GB', duration: '7 Days', price: 4.50 },
+                    { id: 'tr-2', data: '3 GB', duration: '15 Days', price: 9.00 },
+                    { id: 'tr-3', data: '5 GB', duration: '30 Days', price: 13.00, badge: 'Best Seller' },
+                    { id: 'tr-4', data: '10 GB', duration: '30 Days', price: 22.00 }
+                ]
+            },
+            {
+                id: 'thailand',
+                name: 'Thailand',
+                flag: '🇹🇭',
+                region: 'asia',
+                popular: true,
+                speed: '5G High Speed',
+                networks: 'AIS, TrueMove H',
+                plans: [
+                    { id: 'th-1', data: '5 GB', duration: '10 Days', price: 7.00 },
+                    { id: 'th-2', data: '15 GB', duration: '8 Days', price: 9.90, badge: 'Top Value' },
+                    { id: 'th-3', data: 'Unlimited', duration: '15 Days', price: 19.90, badge: 'Best Seller' }
+                ]
+            },
+            {
+                id: 'uae',
+                name: 'United Arab Emirates',
+                flag: '🇦🇪',
+                region: 'middle-east',
+                popular: true,
+                speed: '5G LTE',
+                networks: 'du, Etisalat',
+                plans: [
+                    { id: 'ae-1', data: '1 GB', duration: '7 Days', price: 7.50 },
+                    { id: 'ae-2', data: '3 GB', duration: '15 Days', price: 17.50, badge: 'Best Seller' },
+                    { id: 'ae-3', data: '5 GB', duration: '30 Days', price: 26.00 }
+                ]
+            },
+            {
+                id: 'uk',
+                name: 'United Kingdom',
+                flag: '🇬🇧',
+                region: 'europe',
+                popular: false,
+                speed: '5G / LTE',
+                networks: 'O2, Vodafone UK',
+                plans: [
+                    { id: 'uk-1', data: '1 GB', duration: '7 Days', price: 5.00 },
+                    { id: 'uk-2', data: '3 GB', duration: '30 Days', price: 10.00, badge: 'Best Seller' },
+                    { id: 'uk-3', data: '10 GB', duration: '30 Days', price: 22.50 }
+                ]
+            },
+            {
+                id: 'italy',
+                name: 'Italy',
+                flag: '🇮🇹',
+                region: 'europe',
+                popular: false,
+                speed: '5G LTE',
+                networks: 'TIM, Vodafone',
+                plans: [
+                    { id: 'it-1', data: '1 GB', duration: '7 Days', price: 4.50 },
+                    { id: 'it-2', data: '5 GB', duration: '30 Days', price: 12.50, badge: 'Best Seller' },
+                    { id: 'it-3', data: '10 GB', duration: '30 Days', price: 20.00 }
+                ]
+            },
+            {
+                id: 'eu',
+                name: 'Europe Regional',
+                flag: '🇪🇺',
+                region: 'europe',
+                popular: false,
+                speed: '5G / LTE (39 Countries)',
+                networks: 'Vodafone, Orange, O2',
+                plans: [
+                    { id: 'eu-1', data: '1 GB', duration: '7 Days', price: 5.00 },
+                    { id: 'eu-2', data: '3 GB', duration: '30 Days', price: 13.00 },
+                    { id: 'eu-3', data: '5 GB', duration: '30 Days', price: 20.00, badge: 'Best Seller' },
+                    { id: 'eu-4', data: '10 GB', duration: '30 Days', price: 37.00 }
+                ]
+            },
+            {
+                id: 'asia-reg',
+                name: 'Asia Regional',
+                flag: '🌏',
+                region: 'asia',
+                popular: false,
+                speed: '5G LTE (18 Countries)',
+                networks: 'Docomo, Singtel, AIS',
+                plans: [
+                    { id: 'as-1', data: '1 GB', duration: '7 Days', price: 6.00 },
+                    { id: 'as-2', data: '3 GB', duration: '30 Days', price: 15.00, badge: 'Best Seller' },
+                    { id: 'as-3', data: '5 GB', duration: '30 Days', price: 22.50 }
+                ]
+            },
+            {
+                id: 'global',
+                name: 'Global Explorer',
+                flag: '🌐',
+                region: 'all',
+                popular: false,
+                speed: '5G / LTE (130+ Countries)',
+                networks: 'Global Partner Network',
+                plans: [
+                    { id: 'gl-1', data: '1 GB', duration: '7 Days', price: 9.00 },
+                    { id: 'gl-2', data: '3 GB', duration: '15 Days', price: 24.00 },
+                    { id: 'gl-3', data: '5 GB', duration: '30 Days', price: 35.00, badge: 'Best Seller' },
+                    { id: 'gl-4', data: '20 GB', duration: '365 Days', price: 89.00, badge: '1 Year Valid' }
+                ]
+            }
+        ];
+
+        // Supported Devices DB
+        const compatibleDevices = [
+            "iPhone 15, 15 Plus, 15 Pro, 15 Pro Max",
+            "iPhone 14, 14 Plus, 14 Pro, 14 Pro Max",
+            "iPhone 13, 13 mini, 13 Pro, 13 Pro Max",
+            "iPhone 12, 12 mini, 12 Pro, 12 Pro Max",
+            "iPhone 11, 11 Pro, 11 Pro Max",
+            "iPhone XS, XS Max, XR, SE (2nd & 3rd Gen)",
+            "Samsung Galaxy S24, S24+, S24 Ultra",
+            "Samsung Galaxy S23, S23+, S23 Ultra, S23 FE",
+            "Samsung Galaxy S22, S21, S20 Series",
+            "Samsung Galaxy Z Fold5, Fold4, Fold3, Z Flip5, Flip4",
+            "Google Pixel 8, 8 Pro, 7, 7 Pro, 7a, 6, 6 Pro, 6a, 5, 4",
+            "iPad Pro 11-inch & 12.9-inch (Wi-Fi + Cellular)",
+            "iPad Air & iPad mini (Wi-Fi + Cellular)"
+        ];
+
+        /* ----------------------------------------------------
+           APP STATE & INITIALIZATION
+        ---------------------------------------------------- */
+        let cart = [];
+        let activeRegionFilter = 'all';
+        let currentCurrency = 'USD';
+        const currencyRates = { USD: 1.0, EUR: 0.92, GBP: 0.79, JPY: 155.0 };
+        const currencySymbols = { USD: '$', EUR: '€', GBP: '£', JPY: '¥' };
+
+        window.onload = function() {
+            renderDestinationsGrid();
+        };
+
+        /* ----------------------------------------------------
+           CURRENCY & PRICING CONVERSION
+        ---------------------------------------------------- */
+        function formatPrice(usdPrice) {
+            const converted = usdPrice * currencyRates[currentCurrency];
+            if (currentCurrency === 'JPY') {
+                return `${currencySymbols[currentCurrency]}${Math.round(converted)}`;
+            }
+            return `${currencySymbols[currentCurrency]}${converted.toFixed(2)}`;
+        }
+
+        function changeCurrency(val) {
+            currentCurrency = val;
+            renderDestinationsGrid();
+            updateCartUI();
+        }
+
+        /* ----------------------------------------------------
+           RENDER DESTINATIONS GRID
+        ---------------------------------------------------- */
+        function renderDestinationsGrid() {
+            const container = document.getElementById('countries-grid');
+            container.innerHTML = '';
+
+            const filtered = destinationsData.filter(item => {
+                if (activeRegionFilter === 'all') return true;
+                return item.region === activeRegionFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500">No destinations found for this region.</div>`;
+                return;
+            }
+
+            filtered.forEach(dest => {
+                const minPrice = Math.min(...dest.plans.map(p => p.price));
+                const card = document.createElement('div');
+                card.className = "glass-panel rounded-2xl p-5 border border-slate-800 hover:border-brand-500/80 transition-all duration-300 hover:-translate-y-1 group cursor-pointer flex flex-col justify-between";
+                card.onclick = () => openCountryDetail(dest.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-3xl">${dest.flag}</span>
+                            ${dest.popular ? '<span class="px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[10px] font-extrabold uppercase border border-brand-500/30">Popular</span>' : ''}
+                        </div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${dest.name}</h3>
+                        <p class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-signal text-[10px] text-emerald-400"></i> ${dest.speed}
+                        </p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">Plans from</span>
+                            <span class="text-lg font-black text-white">${formatPrice(minPrice)}</span>
+                        </div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-brand-500 group-hover:text-slate-950 text-slate-300 flex items-center justify-center transition">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function setRegionFilter(region) {
+            activeRegionFilter = region;
+            document.querySelectorAll('.region-tab').forEach(btn => {
+                btn.classList.remove('bg-brand-500', 'text-slate-950');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`tab-${region}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-500', 'text-slate-950');
+                activeBtn.classList.remove('text-slate-400');
+            }
+            renderDestinationsGrid();
+        }
+
+        /* ----------------------------------------------------
+           HERO LIVE SEARCH & AUTOCOMPLETE
+        ---------------------------------------------------- */
+        function handleHeroSearch(event) {
+            const query = event.target.value.toLowerCase().trim();
+            const box = document.getElementById('search-autocomplete-box');
+
+            if (query.length < 1) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const matches = destinationsData.filter(d => d.name.toLowerCase().includes(query));
+
+            if (matches.length === 0) {
+                box.innerHTML = `<div class="p-4 text-xs text-slate-500 text-center">No eSIM plans found for "${query}"</div>`;
+            } else {
+                box.innerHTML = matches.map(m => `
+                    <div onclick="openCountryDetail('${m.id}')" class="p-3.5 hover:bg-slate-800 flex items-center justify-between cursor-pointer border-b border-slate-800/50 last:border-0 transition">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${m.flag}</span>
+                            <div>
+                                <div class="font-bold text-white text-sm">${m.name}</div>
+                                <div class="text-xs text-slate-400">${m.speed} • ${m.networks}</div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-brand-400">View Plans &rarr;</span>
+                    </div>
+                `).join('');
+            }
+            box.classList.remove('hidden');
+        }
+
+        function executeHeroSearch() {
+            const query = document.getElementById('hero-search-input').value.toLowerCase().trim();
+            if (!query) return;
+            const match = destinationsData.find(d => d.name.toLowerCase().includes(query));
+            if (match) {
+                openCountryDetail(match.id);
+            } else {
+                alert(`No eSIM destination matching "${query}" found.`);
+            }
+        }
+
+        function quickFilterDestination(countryName) {
+            const match = destinationsData.find(d => d.name.toLowerCase() === countryName.toLowerCase());
+            if (match) {
+                openCountryDetail(match.id);
+            }
+        }
+
+        /* ----------------------------------------------------
+           COUNTRY DETAIL MODAL & PLAN SELECTION
+        ---------------------------------------------------- */
+        function openCountryDetail(countryId) {
+            const country = destinationsData.find(d => d.id === countryId);
+            if (!country) return;
+
+            document.getElementById('modal-flag').innerText = country.flag;
+            document.getElementById('modal-country-name').innerText = country.name;
+            document.getElementById('modal-network-info').innerText = `Networks: ${country.networks}`;
+
+            const plansContainer = document.getElementById('modal-plans-grid');
+            plansContainer.innerHTML = '';
+
+            country.plans.forEach(plan => {
+                const planCard = document.createElement('div');
+                planCard.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-brand-500/80 transition relative";
+                
+                planCard.innerHTML = `
+                    ${plan.badge ? `<span class="absolute -top-2.5 right-3 bg-brand-500 text-slate-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-md">${plan.badge}</span>` : ''}
+                    <div>
+                        <div class="text-2xl font-black text-white mb-1">${plan.data}</div>
+                        <div class="text-xs font-semibold text-brand-400 mb-3 flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> ${plan.duration} Validity
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                        <div>
+                            <span class="text-lg font-extrabold text-white">${formatPrice(plan.price)}</span>
+                        </div>
+                        <button onclick="addToCart('${country.name}', '${country.flag}', '${plan.data}', '${plan.duration}', ${plan.price})" class="px-3.5 py-2 bg-brand-500/20 hover:bg-brand-500 text-brand-400 hover:text-slate-950 border border-brand-500/30 rounded-xl text-xs font-bold transition">
+                            + Add to Cart
+                        </button>
+                    </div>
+                `;
+                plansContainer.appendChild(planCard);
+            });
+
+            document.getElementById('country-modal').classList.remove('hidden');
+            document.getElementById('search-autocomplete-box').classList.add('hidden');
+        }
+
+        function closeCountryModal() {
+            document.getElementById('country-modal').classList.add('hidden');
+        }
+
+        /* ----------------------------------------------------
+           DEVICE COMPATIBILITY CHECKER
+        ---------------------------------------------------- */
+        function openCompatibilityModal() {
+            document.getElementById('compatibility-modal').classList.remove('hidden');
+        }
+
+        function closeCompatibilityModal() {
+            document.getElementById('compatibility-modal').classList.add('hidden');
+        }
+
+        function quickFilterDevice(brand) {
+            document.getElementById('device-search-input').value = brand;
+            checkDeviceSupport();
+        }
+
+        function checkDeviceSupport() {
+            const val = document.getElementById('device-search-input').value.toLowerCase().trim();
+            const resultBox = document.getElementById('compatibility-result-box');
+
+            if (val.length === 0) {
+                resultBox.innerHTML = `
+                    <i class="fa-solid fa-circle-question text-3xl text-slate-600 mb-2"></i>
+                    <p class="text-slate-400">Type your smartphone brand or model above to verify compatibility instantly.</p>
+                `;
+                return;
+            }
+
+            const matched = compatibleDevices.filter(d => d.toLowerCase().includes(val));
+
+            if (matched.length > 0) {
+                resultBox.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-2 border border-emerald-500/30">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="font-extrabold text-white text-base">Compatible Device Found!</div>
+                    <p class="text-xs text-slate-300 mt-1 max-w-sm">
+                        Matches: <span class="text-emerald-400 font-semibold">${matched[0]}</span>
+                    </p>
+                `;
+            } else {
+                resultBox.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-2 border border-amber-500/30">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="font-bold text-white">Unconfirmed or Carrier Locked</div>
+                    <p class="text-xs text-slate-400 mt-1">If your device was manufactured after 2020 and is carrier-unlocked, it likely supports eSIM.</p>
+                `;
+            }
+        }
+
+        /* ----------------------------------------------------
+           SHOPPING CART LOGIC & DRAWER
+        ---------------------------------------------------- */
+        function addToCart(countryName, flag, data, duration, price) {
+            const item = {
+                id: Date.now(),
+                countryName,
+                flag,
+                data,
+                duration,
+                price
+            };
+            cart.push(item);
+            updateCartUI();
+            closeCountryModal();
+            toggleCartDrawer(true);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const container = document.getElementById('cart-items-container');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total');
+            const btnCheckout = document.getElementById('btn-checkout');
+
+            badge.innerText = cart.length;
+            if (cart.length > 0) {
+                badge.classList.remove('scale-0');
+            } else {
+                badge.classList.add('scale-0');
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-slate-500 space-y-3">
+                        <i class="fa-solid fa-bag-shopping text-4xl text-slate-700"></i>
+                        <p class="text-sm">Your cart is currently empty.</p>
+                    </div>
+                `;
+                subtotalEl.innerText = formatPrice(0);
+                totalEl.innerText = formatPrice(0);
+                btnCheckout.disabled = true;
+                return;
+            }
+
+            btnCheckout.disabled = false;
+            let sum = 0;
+            container.innerHTML = '';
+
+            cart.forEach(item => {
+                sum += item.price;
+                const el = document.createElement('div');
+                el.className = "bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 flex items-center justify-between";
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">${item.flag}</span>
+                        <div>
+                            <div class="font-extrabold text-white text-sm">${item.countryName}</div>
+                            <div class="text-xs text-brand-400 font-semibold">${item.data} • ${item.duration}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-black text-white text-sm">${formatPrice(item.price)}</span>
+                        <button onclick="removeFromCart(${item.id})" class="text-slate-500 hover:text-red-400 p-1">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            subtotalEl.innerText = formatPrice(sum);
+            totalEl.innerText = formatPrice(sum);
+        }
+
+        function toggleCartDrawer(forceOpen = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+
+            if (forceOpen || drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        /* ----------------------------------------------------
+           CHECKOUT & QR CODE SIMULATION
+        ---------------------------------------------------- */
+        function initiateCheckout() {
+            toggleCartDrawer();
+            const sum = cart.reduce((acc, i) => acc + i.price, 0);
+            document.getElementById('checkout-modal-total').innerText = formatPrice(sum);
+
+            document.getElementById('checkout-step-form').classList.remove('hidden');
+            document.getElementById('checkout-step-loading').classList.add('hidden');
+            document.getElementById('checkout-step-success').classList.add('hidden');
+
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function processSimulatedPayment(event) {
+            event.preventDefault();
+
+            document.getElementById('checkout-step-form').classList.add('hidden');
+            document.getElementById('checkout-step-loading').classList.remove('hidden');
+
+            // Simulate server network provisioning
+            setTimeout(() => {
+                document.getElementById('checkout-step-loading').classList.add('hidden');
+                document.getElementById('checkout-step-success').classList.remove('hidden');
+
+                // Generate dynamic QR Code using qrcode.js
+                const qrContainer = document.getElementById('qrcode-container');
+                qrContainer.innerHTML = '';
+                
+                const randomRef = 'GC-ESIM-' + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('order-ref').innerText = '#' + randomRef;
+
+                new QRCode(qrContainer, {
+                    text: `LPA:1$rsp.globalconnect-esim.com$${randomRef}`,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#0B1120",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // Clear cart
+                cart = [];
+                updateCartUI();
+            }, 1800);
+        }
+
+        /* ----------------------------------------------------
+           FAQ & MOBILE MENU TOGGLES
+        ---------------------------------------------------- */
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
